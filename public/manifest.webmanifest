@@ -1,0 +1,12 @@
+{
+  "name": "PagarPIX Business",
+  "short_name": "PagarPIX",
+  "description": "Infraestrutura PIX e conta empresarial BRL.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f3f8f6",
+  "theme_color": "#071714",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
