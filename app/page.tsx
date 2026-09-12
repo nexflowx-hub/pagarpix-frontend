@@ -184,17 +184,16 @@ export default function Home() {
             <p>API previsível, respostas normalizadas e credenciais sempre protegidas no servidor.</p>
             <Link className="button light" href="/login">Ver documentação <span>→</span></Link>
           </div>
-          <pre className="code-card"><code><span className="muted">{"// Criar uma cobrança PIX"}</span>{"
-"}<span className="purple">const</span> payment = <span className="purple">await</span> fetch({"
-  "}<span className="green">&quot;/api/v1/payments/charge&quot;</span>, {"{"}{"
-    "}method: <span className="green">&quot;POST&quot;</span>,{"
-    "}headers: {"{"} <span className="green">&quot;x-api-key&quot;</span>: apiKey {"}"},{"
-    "}body: JSON.stringify({"{"}{"
-      "}amount: <span className="orange">9990</span>,{"
-      "}currency: <span className="green">&quot;BRL&quot;</span>,{"
-      "}payment_method_types: [<span className="green">&quot;pix&quot;</span>]{"
-    }"}){"
-  }"});</code></pre>
+          <pre className="code-card"><code>{`// Criar uma cobrança PIX
+const payment = await fetch("/api/v1/payments/charge", {
+  method: "POST",
+  headers: { "x-api-key": apiKey },
+  body: JSON.stringify({
+    amount: 9990,
+    currency: "BRL",
+    payment_method_types: ["pix"]
+  })
+});`}</code></pre>
         </div>
       </section>
 
