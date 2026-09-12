@@ -331,3 +331,33 @@ button { cursor: pointer; }
   .table-row { grid-template-columns: 1.4fr .8fr .8fr; }
   .table-row > span:nth-child(2) { display: none; }
 }
+
+.public-page { min-height: 100vh; background: #f7fbf9; }
+.public-nav { background: rgba(255,255,255,.9); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(18px); }
+.public-nav .nav { height: 70px; }
+.public-hero { padding: 100px 0 65px; max-width: 850px; }
+.public-hero h1 { font-size: clamp(46px,7vw,78px); line-height: .98; letter-spacing: -.065em; margin: 20px 0; }
+.public-hero > p { max-width: 700px; color: var(--muted); font-size: 17px; line-height: 1.7; }
+.public-content { padding-bottom: 120px; }
+.content-card { background: white; border: 1px solid var(--line); border-radius: 15px; padding: 34px; margin-top: 15px; }
+.content-card h2 { margin: 0 0 14px; font-size: 23px; letter-spacing: -.035em; }
+.content-card h3 { margin-top: 30px; font-size: 16px; }
+.content-card p, .content-card li { color: #60736d; font-size: 14px; line-height: 1.75; }
+.content-card code { background: var(--fog); color: #087c5b; padding: 2px 5px; border-radius: 4px; }
+.public-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 13px; }
+.price-card { min-height: 270px; display: flex; flex-direction: column; }
+.price-card > span { color: #138664; font-size: 11px; font-weight: 850; letter-spacing: .12em; }
+.price-card strong { font-size: 30px; margin: 22px 0 8px; letter-spacing: -.04em; }
+.price-card .button { margin-top: auto; align-self: start; }
+.endpoint { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; margin: 10px 0; background: #f9fcfb; }
+.endpoint b { color: #008d64; font-size: 11px; }
+.endpoint code { background: transparent; }
+.status-line { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; border-top: 1px solid var(--line); }
+.status-line i { width: 8px; height: 8px; border-radius: 50%; background: var(--mint); display: inline-block; margin-right: 9px; box-shadow: 0 0 0 5px rgba(0,233,166,.12); }
+.status-line em { font-style: normal; color: #07845f; font-size: 11px; font-weight: 750; }
+@media (max-width: 720px) {
+  .public-nav .nav-links { display: none; }
+  .public-hero { padding-top: 70px; }
+  .public-grid { grid-template-columns: 1fr; }
+  .content-card { padding: 23px; }
+}
