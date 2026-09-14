@@ -38,6 +38,80 @@ export type TreasuryOverview = {
   legacyCrossCurrencyTotalsDeprecated?: boolean;
 };
 
+export type FinanceOverview = {
+  currency: string;
+  timezone: string;
+  wallet: {
+    id: string | null;
+    balance: number;
+    pending: number;
+    available: number;
+    reserved: number;
+  };
+  payouts: {
+    scheduled: number;
+    scheduledCount: number;
+    paid: number;
+    paidCount: number;
+  };
+  projectedAvailable: number;
+  nextRelease: {
+    date: string | null;
+    amount: number;
+    movementCount: number;
+    status: "expected" | "overdue" | string;
+  } | null;
+  generatedAt: string;
+};
+
+export type FinanceStore = {
+  storeId: string;
+  storeCode: string;
+  storeName: string;
+  status: string;
+  currency: string;
+  transactions: number;
+  gross: number;
+  fees: number;
+  net: number;
+  pending: number;
+  released: number;
+  paidPayouts: number;
+  scheduledPayouts: number;
+  operationalBalance: number;
+  availableAfterPayouts: number;
+};
+
+export type FinanceStores = {
+  currency: string;
+  stores: FinanceStore[];
+  generatedAt: string;
+};
+
+export type FinanceRelease = {
+  date: string | null;
+  storeId: string | null;
+  storeCode: string | null;
+  storeName: string | null;
+  gross: number;
+  fees: number;
+  net: number;
+  movementCount: number;
+  status: "expected" | "overdue" | string;
+};
+
+export type FinanceReleases = {
+  currency: string;
+  timezone: string;
+  items: FinanceRelease[];
+  summary: {
+    totalNet: number;
+    movementCount: number;
+    overdueNet: number;
+  };
+  generatedAt: string;
+};
+
 export type Store = {
   id: string;
   name: string;
@@ -55,6 +129,8 @@ export type Transaction = {
   currency: string;
   status: string;
   method?: string;
+  gateway?: string;
+  storeId?: string | null;
   createdAt: string;
 };
 
