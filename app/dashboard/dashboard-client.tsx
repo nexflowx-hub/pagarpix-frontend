@@ -3,7 +3,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Brand } from "@/components/brand";
-import type { CoreEnvelope, Store, Transaction, Wallet } from "@/lib/types";
+import type {
+  CoreEnvelope,
+  Store,
+  Transaction,
+  TreasuryOverview,
+  Wallet
+} from "@/lib/types";
 
 type LoadState = "loading" | "ready" | "signed-out" | "error";
 
@@ -41,52 +47,74 @@ export default function DashboardClient() {
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [treasury, setTreasury] = useState<TreasuryOverview | null>(null);
   const [message, setMessage] = useState("");
 
   const load = useCallback(async () => {
     setState("loading");
+
     const responses = await Promise.all([
       fetch("/api/core/wallets", { cache: "no-store" }),
       fetch("/api/core/merchant/stores", { cache: "no-store" }),
-      fetch("/api/core/transactions?currency=BRL&limit=6", { cache: "no-store" })
+      fetch("/api/core/transactions?currency=BRL&limit=6", { cache: "no-store" }),
+      fetch("/api/core/treasury/overview", { cache: "no-store" })
     ]).catch(() => null);
 
     if (!responses) {
       setState("error");
       return;
     }
-    if (responses.some((response) => response.status === 401)) {
+
+    if (responses.slice(0, 3).some((response) => response.status === 401)) {
       setState("signed-out");
       return;
     }
 
-    const [walletPayload, storesPayload, transactionPayload] = await Promise.all(
-      responses.map((response) => response.json().catch(() => null))
-    ) as [
-      CoreEnvelope<{ wallets: Wallet[] }>,
-      CoreEnvelope<Store[]>,
-      CoreEnvelope<Transaction[]>
+    const [walletResponse, storesResponse, transactionResponse, treasuryResponse] = responses;
+
+    const [walletPayload, storesPayload, transactionPayload, treasuryPayload] = await Promise.all([
+      walletResponse.json().catch(() => null),
+      storesResponse.json().catch(() => null),
+      transactionResponse.json().catch(() => null),
+      treasuryResponse.json().catch(() => null)
+    ]) as [
+      CoreEnvelope<{ wallets: Wallet[] }> | null,
+      CoreEnvelope<Store[]> | null,
+      CoreEnvelope<Transaction[]> | null,
+      CoreEnvelope<TreasuryOverview> | null
     ];
 
     if (!walletPayload?.success || !storesPayload?.success || !transactionPayload?.success) {
       setState("error");
       return;
     }
+
     setWallets(walletPayload.data.wallets ?? []);
     setStores(storesPayload.data ?? []);
     setTransactions(transactionPayload.data ?? []);
+
+    // Treasury is intentionally optional during rollout. The accounting
+    // dashboard remains usable even before the physical-wallet API is live.
+    setTreasury(treasuryPayload?.success ? treasuryPayload.data : null);
     setState("ready");
   }, []);
 
   useEffect(() => { void load(); }, [load]);
 
-  const brl = useMemo(
+  const brlAccounting = useMemo(
     () => wallets.find((wallet) => wallet.currency.toUpperCase() === "BRL"),
     [wallets]
   );
 
+  const brlPhysical = useMemo(
+    () => treasury?.physicalWallets?.find(
+      (wallet) => wallet.code === "WALLET-BRL" && wallet.currency.toUpperCase() === "BRL"
+    ),
+    [treasury]
+  );
+
   function plannedAction(label: string) {
-    setMessage(`${label}: integração operacional ainda precisa ser criada no XPayments Core.`);
+    setMessage(`${label}: operação física sujeita à validação manual da XPayments.`);
     window.setTimeout(() => setMessage(""), 4200);
   }
 
@@ -120,7 +148,7 @@ export default function DashboardClient() {
 
         <div className="dash-content">
           <div className="welcome-row">
-            <div><p>CONTA EMPRESARIAL BRL</p><h1>Visão geral</h1><span>O seu dinheiro e a sua operação PIX numa única visão.</span></div>
+            <div><p>CONTA EMPRESARIAL BRL</p><h1>Visão geral</h1><span>Saldo físico, ledger contabilístico e operação PIX em visões separadas.</span></div>
             <div className="period"><button className="active">Hoje</button><button>7 dias</button><button>30 dias</button></div>
           </div>
 
@@ -133,11 +161,30 @@ export default function DashboardClient() {
           {message && <div className="toast" role="status">{message}</div>}
 
           <div className="wallet-overview">
-            <article className="main-wallet">
-              <div className="wallet-label"><span className="brazil-dot">BR</span><div><small>WALLET PRINCIPAL</small><b>Conta empresarial BRL</b></div><em>{brl ? "ATIVA" : "AGUARDA CORE"}</em></div>
-              <p>Saldo total</p>
-              <h2>{state === "ready" && brl ? money(brl.balance) : "R$ —"}</h2>
-              <div className="balance-detail"><span>Disponível <b>{state === "ready" && brl ? money(brl.available) : "—"}</b></span><span>Reservado <b>{state === "ready" && brl ? money(brl.reserved) : "—"}</b></span></div>
+            <article
+              className="main-wallet physical-wallet"
+              style={{
+                borderColor: "rgba(34, 197, 94, 0.34)",
+                boxShadow: "0 0 0 1px rgba(34, 197, 94, 0.12), 0 0 38px rgba(34, 197, 94, 0.14)"
+              }}
+            >
+              <div className="wallet-label">
+                <span className="brazil-dot">BR</span>
+                <div>
+                  <small>WALLET BANCÁRIA FÍSICA</small>
+                  <b>Wallet-BRL</b>
+                </div>
+                <em>{brlPhysical?.status === "active" ? "ATIVA" : "AGUARDA TREASURY"}</em>
+              </div>
+              <p>Saldo físico</p>
+              <h2>{state === "ready" && brlPhysical ? money(brlPhysical.balance) : "R$ —"}</h2>
+              <div className="balance-detail">
+                <span>Disponível <b>{state === "ready" && brlPhysical ? money(brlPhysical.available) : "—"}</b></span>
+                <span>Reservado <b>{state === "ready" && brlPhysical ? money(brlPhysical.reserved) : "—"}</b></span>
+              </div>
+              <div className="routing-note">
+                PagarPIX.org · Liquidação física controlada pela XPayments · FX manual
+              </div>
               <div className="wallet-actions">
                 <button onClick={() => plannedAction("Depositar")}><i>＋</i><span>Depositar</span></button>
                 <button onClick={() => plannedAction("Transferir")}><i>↗</i><span>Transferir</span></button>
@@ -146,10 +193,17 @@ export default function DashboardClient() {
             </article>
 
             <article className="metric-card">
-              <div className="metric-icon incoming">↙</div><small>ENTRADAS PIX</small><h3>{state === "ready" ? money(transactions.filter(t => t.status === "succeeded").reduce((sum, t) => sum + Number(t.amount), 0)) : "R$ —"}</h3><span>Lista BRL atualmente carregada</span>
+              <div className="metric-icon incoming">◎</div>
+              <small>SALDO CONTABILÍSTICO BRL</small>
+              <h3>{state === "ready" && brlAccounting ? money(brlAccounting.balance) : "R$ —"}</h3>
+              <span>Ledger XPayments · não é saldo bancário físico</span>
             </article>
+
             <article className="metric-card">
-              <div className="metric-icon pending">◷</div><small>EM PROCESSAMENTO</small><h3>{state === "ready" && brl ? money(brl.reserved) : "R$ —"}</h3><span>Saldo reservado no Core</span>
+              <div className="metric-icon pending">◷</div>
+              <small>CONTABILÍSTICO RESERVADO</small>
+              <h3>{state === "ready" && brlAccounting ? money(brlAccounting.reserved) : "R$ —"}</h3>
+              <span>Valores reservados no ledger do Core</span>
             </article>
           </div>
 
@@ -161,10 +215,10 @@ export default function DashboardClient() {
                   <div className="store-row" key={store.id}>
                     <span className="store-icon">{store.name.slice(0, 2).toUpperCase()}</span>
                     <div><b>{store.name}</b><small>{store.storeCode} · {store.currency}</small></div>
-                    <span className="core-required">Wallet por Store requer Core</span>
+                    <span className="core-required">Ledger contabilístico</span>
                   </div>
                 )) : (
-                  <div className="empty-state"><span>▦</span><b>Nenhuma Store carregada</b><small>As contas por Store serão apresentadas quando o modelo financeiro existir no Core.</small></div>
+                  <div className="empty-state"><span>▦</span><b>Nenhuma Store carregada</b><small>As contas por Store serão apresentadas quando o Core devolver dados.</small></div>
                 )}
               </div>
             </article>

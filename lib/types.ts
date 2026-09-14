@@ -8,6 +8,36 @@ export type Wallet = {
   type?: string;
 };
 
+export type PhysicalWallet = {
+  id: string;
+  code: string;
+  label: string;
+  currency: string;
+  role: "BANK_SETTLEMENT" | "CRYPTO_SETTLEMENT" | "BLOCKED" | string;
+  ecosystem?: string | null;
+  status: string;
+  balance: number;
+  available: number;
+  reserved: number;
+  physical: true;
+  manualSettlement?: boolean;
+  autoFx?: boolean;
+  updatedAt?: string;
+};
+
+export type TreasuryOverview = {
+  physicalWallets?: PhysicalWallet[];
+  accountingByCurrency?: Array<{
+    currency: string;
+    balance: number;
+    available: number;
+    reserved: number;
+    reconciliationHold: number;
+  }>;
+  financialMetrics?: "currency_scoped" | string;
+  legacyCrossCurrencyTotalsDeprecated?: boolean;
+};
+
 export type Store = {
   id: string;
   name: string;
