@@ -51,7 +51,7 @@ export default function Home() {
         <div className="v2-hero-layout shell">
           <div className="v2-hero-copy">
             <div className="v2-eyebrow"><i /> INFRAESTRUTURA PIX PARA EMPRESAS</div>
-            <h1>Seu PIX. Mais rápido,<br />inteligente e preparado<br /><em>para crescer.</em></h1>
+            <h1><span>Seu PIX. Mais rápido,</span>{" "}<br /><span>inteligente e preparado</span>{" "}<br /><em>para crescer.</em></h1>
             <p>Aceite, roteie, concilie e movimente recursos em uma única plataforma.</p>
             <div className="v2-hero-actions"><Link className="v2-button" href="/login">Criar conta empresarial <Icon name="arrow" /></Link><Link className="v2-secondary-button" href="/docs">Explorar a API</Link></div>
             <div className="v2-trust-row">
