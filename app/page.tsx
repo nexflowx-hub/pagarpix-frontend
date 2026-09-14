@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Brand } from "@/components/brand";
 import { Icon, type IconName } from "@/components/icons";
+import { MarketingMotion } from "@/components/marketing-motion";
 
 const capabilities: Array<{ icon: IconName; title: string; text: string }> = [
   { icon: "code", title: "PIX API", text: "Integre e escale com simplicidade." },
@@ -31,7 +32,10 @@ const qrCells = [
 export default function Home() {
   return (
     <main className="marketing v2-marketing">
+      <MarketingMotion />
       <section className="v2-hero">
+        <div className="hero-city" aria-hidden="true" />
+        <div className="hero-vignette" aria-hidden="true" />
         <div className="hero-grid" aria-hidden="true" />
         <div className="hero-rail rail-a" aria-hidden="true" />
         <div className="hero-rail rail-b" aria-hidden="true" />
@@ -68,7 +72,7 @@ export default function Home() {
               <header><div><Icon name="wallet" /><span><small>WALLET BRL</small><b>Conta empresarial</b></span></div><span className="scene-status"><i /> DISPONÍVEL</span></header>
               <p>Disponível para saque</p><strong>R$ —</strong>
               <div className="scene-wallet-actions"><span><Icon name="withdraw" /> Solicitar saque</span><span><Icon name="transfer" /> Movimentar</span></div>
-              <small>Os valores só entram aqui após a liberação.</small>
+              <div className="scene-wallet-feed"><header><span>MOVIMENTAÇÕES RECENTES</span><b>Ver todas</b></header><div><i><Icon name="deposit" /></i><span><b>PIX recebido</b><small>Após confirmação</small></span><em>+ R$ —</em></div><div><i><Icon name="withdraw" /></i><span><b>Solicitação de saque</b><small>Sujeita à validação</small></span><em>R$ —</em></div></div>
             </article>
 
             <article className="scene-card route-card">
@@ -77,19 +81,19 @@ export default function Home() {
               <div className="route-result"><Icon name="check" /> Decisão protegida e auditável</div>
             </article>
 
-            <div className="brazil-signal" aria-hidden="true"><svg viewBox="0 0 190 210"><path d="M68 5 101 20l18 29 33 18 26 43-25 19-11 39-35 8-23 30-24-23-30-5-15-31 9-29-13-25 31-24 7-34Z"/><circle cx="103" cy="112" r="4"/><path d="m103 112 42-22M103 112l-38-38M103 112l-20 54"/></svg></div>
+            <aside className="scene-rail" aria-hidden="true"><b>PIX</b><p>Conecta o Brasil<br />às grandes<br />oportunidades.</p><div className="brazil-signal"><svg viewBox="0 0 190 210"><path d="M68 5 101 20l18 29 33 18 26 43-25 19-11 39-35 8-23 30-24-23-30-5-15-31 9-29-13-25 31-24 7-34Z"/><circle cx="103" cy="112" r="4"/><path d="m103 112 42-22M103 112l-38-38M103 112l-20 54"/></svg></div><small>MAIS PAGAMENTOS<br />MAIS NEGÓCIOS<br />UM BRASIL MAIS FORTE</small></aside>
           </div>
         </div>
 
         <div className="capability-bar"><div className="shell capability-grid">{capabilities.map((item) => <div className="capability" key={item.title}><span><Icon name={item.icon} /></span><div><b>{item.title}</b><small>{item.text}</small></div></div>)}</div></div>
       </section>
 
-      <section className="v2-section shell" id="plataforma">
+      <section className="v2-section shell" id="plataforma" data-reveal>
         <div className="v2-section-intro"><div><div className="v2-kicker">UMA PLATAFORMA. TODO O FLUXO.</div><h2>Do primeiro PIX ao<br />último centavo conciliado.</h2></div><p>Uma camada de produto própria sobre o XPayments Core: simples para o merchant, robusta para a operação e segura para o dinheiro.</p></div>
-        <div className="platform-grid">{platform.map((item) => <article key={item.index}><div className="platform-top"><span>{item.index}</span><Icon name={item.icon} /></div><small>{item.label}</small><h3>{item.title}</h3><p>{item.text}</p><Link href="/docs">Explorar <Icon name="arrow" /></Link></article>)}</div>
+        <div className="platform-grid">{platform.map((item) => <article key={item.index} data-reveal><div className="platform-top"><span>{item.index}</span><Icon name={item.icon} /></div><small>{item.label}</small><h3>{item.title}</h3><p>{item.text}</p><Link href="/docs">Explorar <Icon name="arrow" /></Link></article>)}</div>
       </section>
 
-      <section className="wallet-story" id="wallet">
+      <section className="wallet-story" id="wallet" data-reveal>
         <div className="shell wallet-story-grid">
           <div className="wallet-story-copy">
             <div className="v2-kicker light">CONTA EMPRESARIAL BRL</div><h2>O dinheiro só fica disponível quando pode ser movimentado.</h2><p>Pagamentos confirmados permanecem ligados às Stores durante o ciclo de liberação. Depois de liquidados, entram na Wallet BRL Empresarial e ficam disponíveis para saque.</p>
@@ -109,14 +113,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="developer-v2" id="developers">
+      <section className="developer-v2" id="developers" data-reveal>
         <div className="shell developer-v2-grid">
           <div><div className="v2-kicker light">FEITO PARA DESENVOLVEDORES</div><h2>Um PIX.<br />Poucas linhas.</h2><p>API previsível, respostas normalizadas e credenciais sempre protegidas no servidor.</p><Link className="v2-button" href="/docs">Abrir documentação <Icon name="arrow" /></Link></div>
           <div className="terminal-card"><header><span><i /><i /><i /></span><small>POST /api/v1/payments/charge</small><em>BRL</em></header><pre><code><span>{"// Criar uma cobrança PIX"}</span>{`\nconst payment = await fetch("/api/v1/payments/charge", {\n  method: "POST",\n  headers: { "x-api-key": apiKey },\n  body: JSON.stringify({\n    amount: 9990,\n    currency: "BRL",\n    payment_method_types: ["pix"]\n  })\n});`}</code></pre><footer><span><i /> Server-to-server</span><span>Credenciais protegidas</span></footer></div>
         </div>
       </section>
 
-      <section className="final-cta"><div className="final-cta-grid" aria-hidden="true" /><div className="shell"><Icon name="pix" /><h2>O próximo PIX da sua empresa<br />começa aqui.</h2><p>Infraestrutura pronta para aceitar, rotear, conciliar e crescer.</p><Link className="v2-button" href="/login">Criar conta empresarial <Icon name="arrow" /></Link></div></section>
+      <section className="final-cta" data-reveal><div className="final-cta-grid" aria-hidden="true" /><div className="shell"><Icon name="pix" /><h2>O próximo PIX da sua empresa<br />começa aqui.</h2><p>Infraestrutura pronta para aceitar, rotear, conciliar e crescer.</p><Link className="v2-button" href="/login">Criar conta empresarial <Icon name="arrow" /></Link></div></section>
 
       <footer className="v2-footer"><div className="shell footer-main"><div><Brand /><p>Infraestrutura PIX para empresas modernas.<br />Powered by XPayments Core.</p></div><div><b>Produto</b><a href="#plataforma">Soluções</a><a href="#wallet">Wallet BRL</a><Link href="/pricing">Preços</Link></div><div><b>Desenvolvedores</b><Link href="/docs">Documentação</Link><Link href="/status">Status</Link><Link href="/contact">Contato</Link></div><div><b>Legal</b><Link href="/legal/terms">Termos</Link><Link href="/legal/privacy">Privacidade</Link><Link href="/legal/cookies">Cookies</Link></div></div><div className="shell footer-base"><span>© 2026 PagarPIX. Todos os direitos reservados.</span><span><i /> XPayments Core operacional</span></div></footer>
     </main>

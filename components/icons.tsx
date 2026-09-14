@@ -25,7 +25,7 @@ export type IconName =
   | "clock"
   | "arrow";
 
-export function Icon({ name, ...props }: SVGProps<SVGSVGElement> & { name: IconName }) {
+export function Icon({ name, className, ...props }: SVGProps<SVGSVGElement> & { name: IconName }) {
   const common = {
     fill: "none",
     stroke: "currentColor",
@@ -35,7 +35,7 @@ export function Icon({ name, ...props }: SVGProps<SVGSVGElement> & { name: IconN
   };
 
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...props}>
+    <svg className={["icon", className].filter(Boolean).join(" ")} viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...props}>
       <g {...common}>
         {name === "home" ? <><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9M9 20v-7h6v7"/></> : null}
         {name === "wallet" ? <><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v16H6.5A2.5 2.5 0 0 1 4 17.5z"/><path d="M4 7h15M15 11h6v5h-6a2.5 2.5 0 0 1 0-5Z"/><path d="M16 13.5h.01"/></> : null}

@@ -140,6 +140,14 @@ export default function DashboardClient() {
     return values.map((value) => Math.max(10, Math.round((value / max) * 100)));
   }, [transactions]);
 
+  const chartPoints = useMemo(() => {
+    if (!chartBars.length) return "";
+    return chartBars.map((height, index) => {
+      const x = chartBars.length === 1 ? 140 : (index / (chartBars.length - 1)) * 280;
+      return `${x.toFixed(1)},${(96 - height * 0.78).toFixed(1)}`;
+    }).join(" ");
+  }, [chartBars]);
+
   function plannedAction(label: string) {
     setMessage(`${label}: solicitação registada apenas quando o respetivo fluxo estiver ativo no XPayments Core.`);
     if (noticeTimer.current) clearTimeout(noticeTimer.current);
@@ -202,7 +210,8 @@ export default function DashboardClient() {
                 {state === "ready" && storeRows.length ? storeRows.map((store) => {
                   const release = releaseByStore.get(store.storeId);
                   const releaseStatus = release?.status === "overdue" ? "Em revisão" : release ? "Em liberação" : store.pending > 0 ? "Aguardando" : "Sem pendências";
-                  return <div className="store-table-row" key={store.storeId}><span><i>{initials(store.storeName)}</i><b>{store.storeName}<small>{store.storeCode}</small></b></span><span><b>{money(store.pending)}</b><small>{store.transactions} transações</small></span><span>{shortDate(release?.date)}</span><span><b>{money(store.net)}</b><small>Após taxas</small></span><span><em className={release?.status === "overdue" ? "review" : store.pending > 0 ? "waiting" : "clear"}>{releaseStatus}</em></span></div>;
+                  const pendingShare = store.net > 0 ? Math.min(100, Math.max(0, Math.round((store.pending / store.net) * 100))) : 0;
+                  return <div className="store-table-row" key={store.storeId}><span><i>{initials(store.storeName)}</i><b>{store.storeName}<small>{store.storeCode}</small></b></span><span><b>{money(store.pending)}</b><small>{store.transactions} transações</small><span className="release-meter" aria-label={`${pendingShare}% do líquido permanece pendente`}><i style={{ width: `${pendingShare}%` }} /></span></span><span>{shortDate(release?.date)}</span><span><b>{money(store.net)}</b><small>Após taxas</small></span><span><em className={release?.status === "overdue" ? "review" : store.pending > 0 ? "waiting" : "clear"}>{releaseStatus}</em></span></div>;
                 }) : <div className="store-table-empty"><Icon name="store" /><b>Sem recebíveis para apresentar</b><span>As Stores serão carregadas diretamente do XPayments Core.</span></div>}
               </div>
             </article>
@@ -224,7 +233,8 @@ export default function DashboardClient() {
             <article className="app-panel cashflow-panel">
               <header className="app-panel-title"><div><span><Icon name="chart" /></span><div><small>FLUXO</small><h2>Entradas PIX recentes</h2></div></div></header>
               <div className="chart-total"><span>Volume carregado</span><b>{state === "ready" ? money(transactions.filter((tx) => tx.status.toLowerCase() === "succeeded" && tx.currency === "BRL").reduce((sum, tx) => sum + Number(tx.amount), 0)) : "R$ —"}</b></div>
-              <div className="cash-chart">{chartBars.length ? chartBars.map((height, index) => <i key={`${height}-${index}`} style={{ height: `${height}%` }} />) : Array.from({ length: 12 }).map((_, index) => <i className="placeholder" key={index} />)}<span /></div>
+              <div className="chart-legend"><span><i className="mint" /> Entradas PIX</span><span><i className="line" /> Tendência</span></div>
+              <div className="cash-chart">{chartBars.length ? chartBars.map((height, index) => <i key={`${height}-${index}`} style={{ height: `${height}%` }} />) : Array.from({ length: 12 }).map((_, index) => <i className="placeholder" key={index} />)}{chartPoints ? <svg viewBox="0 0 280 100" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="cashLine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#00a978" /><stop offset="1" stopColor="#00e6a1" /></linearGradient></defs><polyline points={chartPoints} /></svg> : null}<span /></div>
               <footer><span><i /> Entradas confirmadas</span><small>Baseado nas transações carregadas do Core</small></footer>
             </article>
           </section>
