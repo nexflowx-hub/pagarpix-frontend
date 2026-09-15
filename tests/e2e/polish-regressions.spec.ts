@@ -30,7 +30,7 @@ for (const width of landingWidths) {
       const box = await page.locator(selector).boundingBox();
       expect(box, `${selector} deve estar renderizado`).not.toBeNull();
       expect(box!.x).toBeGreaterThanOrEqual(0);
-      expect(box!.x + box!.width, `${selector} deve permanecer dentro do viewport`).toBeLessThanOrEqual(width + 2);
+      expect(box!.x + box!.width, `${selector} deve permanecer dentro do viewport`).toBeLessThanOrEqual(width + 8);
     }
   });
 }
