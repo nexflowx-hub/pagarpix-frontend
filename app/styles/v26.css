@@ -1,0 +1,69 @@
+/* Production Polish V2.6 — evidence-driven visual regression fixes. */
+
+/* Keep card CTAs in normal flow so longer copy never collides with them. */
+.platform-grid article {
+  display: flex;
+  flex-direction: column;
+}
+
+.platform-grid article > p {
+  margin-bottom: 26px;
+}
+
+.platform-grid article > a {
+  position: static;
+  margin-top: auto;
+}
+
+/* Preserve the cinematic desktop scene without sacrificing readable card edges. */
+@media (min-width: 1181px) {
+  .v2-product-scene {
+    margin-left: -42px;
+    margin-right: -62px;
+    transform: scale(.96);
+    transform-origin: left center;
+  }
+}
+
+/* The previous 1024 layout clipped the Wallet / Routing cards outside the viewport. */
+@media (min-width: 981px) and (max-width: 1180px) {
+  .v2-product-scene {
+    margin-left: -34px;
+    margin-right: -58px;
+    transform: scale(.82);
+    transform-origin: left center;
+  }
+}
+
+@media (max-width: 430px) {
+  /* Mobile topbar: icon + useful search field, without pseudo-content escaping its box. */
+  .mobile-app-brand .brand-name {
+    display: none;
+  }
+
+  .mobile-app-brand .brand-mark {
+    width: 28px;
+    height: 28px;
+  }
+
+  .app-search {
+    position: relative;
+    max-width: none;
+    flex: 1;
+    margin-left: 10px;
+  }
+
+  .app-search input::placeholder {
+    color: transparent;
+  }
+
+  .app-search::after {
+    left: 42px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .topbar-actions .user-menu {
+    display: none;
+  }
+}
