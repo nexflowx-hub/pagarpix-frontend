@@ -9,7 +9,7 @@ const contentSecurityPolicy = [
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
   "script-src 'self' 'unsafe-inline'",
-  "connect-src 'self' https://api.xpayments.digital",
+  "connect-src 'self'",
   "manifest-src 'self'",
   "worker-src 'self' blob:",
   "upgrade-insecure-requests"
