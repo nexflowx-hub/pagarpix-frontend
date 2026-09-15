@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CORE_API_URL, SESSION_COOKIE } from "@/lib/core";
+import { hasTrustedOrigin } from "@/lib/security";
 
 export async function POST(request: NextRequest) {
+  if (!hasTrustedOrigin(request)) {
+    return NextResponse.json({ success: false, error: { code: "INVALID_ORIGIN", message: "Origem não permitida." } }, { status: 403 });
+  }
   const body = await request.json().catch(() => null);
-  if (!body?.email || !body?.password) {
+  const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
+  const password = typeof body?.password === "string" ? body.password : "";
+  if (!email || !password || email.length > 254 || password.length > 256) {
     return NextResponse.json(
       { success: false, error: { code: "INVALID_CREDENTIALS", message: "Informe e-mail e senha." } },
       { status: 400 }
@@ -13,7 +19,7 @@ export async function POST(request: NextRequest) {
   const upstream = await fetch(`${CORE_API_URL}/auth/login`, {
     method: "POST",
     headers: { "content-type": "application/json", accept: "application/json" },
-    body: JSON.stringify({ email: body.email, password: body.password }),
+    body: JSON.stringify({ email, password }),
     cache: "no-store"
   }).catch(() => null);
 
@@ -42,7 +48,9 @@ export async function POST(request: NextRequest) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 12
+    maxAge: 60 * 60 * 12,
+    priority: "high"
   });
+  response.headers.set("Cache-Control", "no-store, max-age=0");
   return response;
 }

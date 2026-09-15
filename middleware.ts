@@ -8,7 +8,10 @@ export function middleware(request: NextRequest) {
   if (APP_HOSTS.has(hostname) && request.nextUrl.pathname === "/") {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/dashboard";
-    return NextResponse.rewrite(dashboardUrl);
+    const response = NextResponse.rewrite(dashboardUrl);
+    response.headers.set("Cache-Control", "private, no-store, max-age=0");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+    return response;
   }
 
   return NextResponse.next();

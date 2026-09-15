@@ -40,5 +40,8 @@ export async function GET(request: NextRequest, context: Context) {
     success: false,
     error: { code: "INVALID_CORE_RESPONSE", message: "Resposta inválida do Core." }
   }));
-  return NextResponse.json(payload, { status: upstream.status });
+  return NextResponse.json(payload, {
+    status: upstream.status,
+    headers: { "Cache-Control": "no-store, max-age=0", "CDN-Cache-Control": "no-store" }
+  });
 }
