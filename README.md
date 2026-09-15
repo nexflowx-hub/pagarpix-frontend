@@ -19,13 +19,13 @@ O frontend não contém ledger, banco financeiro, credenciais de providers ou l�
 ## Experiência inicial
 
 - landing institucional com posicionamento fintech + gateway;
-- login ligado ao endpoint canónico do XPayments;
+- login conectado ao endpoint canônico do XPayments;
 - dashboard de conta empresarial BRL;
-- Wallet BRL consolidada;
-- Stores apresentadas como contas operacionais;
+- Wallet BRL física separada do saldo contábil;
+- Stores apresentadas como contas operacionais de recebíveis, sem inventar Wallets físicas por Store;
 - transações PIX reais;
 - estados explícitos para capacidades ainda ausentes no Core;
-- PWA e layout responsivo.
+- manifest instalável e layout responsivo (sem cache offline de dados financeiros).
 
 ## Desenvolvimento
 
@@ -35,6 +35,17 @@ npm install
 npm run dev
 ```
 
+## Quality gate
+
+```bash
+npm ci
+npm run quality
+npx playwright install chromium
+npm run test:e2e
+```
+
+O CI executa typecheck, ESLint CLI, testes unitários, build, E2E, axe, matriz visual em 1440/1024/768/390 e Lighthouse. Os relatórios são publicados como artefatos da execução.
+
 ## Variáveis
 
 - `XPAYMENTS_API_URL`: base privada utilizada pelo BFF. Padrão: `https://api.xpayments.digital/api/v1`.
@@ -42,4 +53,4 @@ npm run dev
 
 ## Estado do Core
 
-Consulte [docs/CORE_CAPABILITY_MATRIX.md](docs/CORE_CAPABILITY_MATRIX.md). Wallet por Store, depósito, transferência e levantamento devem ser implementados no XPayments Core antes de se tornarem operações ativas no PagarPIX.
+Consulte [docs/CORE_CAPABILITY_MATRIX.md](docs/CORE_CAPABILITY_MATRIX.md). Wallet por Store, depósito, transferência e saque devem ser implementados no XPayments Core antes de se tornarem operações ativas no PagarPIX.
