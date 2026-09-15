@@ -1,11 +1,5 @@
-import type { Metadata } from "next";
 import DashboardClient from "./dashboard-client";
 
-export const metadata: Metadata = {
-  title: "Conta empresarial",
-  robots: { index: false, follow: false }
-};
-
 export default function DashboardPage() {
-  return <DashboardClient />;
+  return <DashboardClient section="overview" />;
 }

@@ -4,18 +4,16 @@ import { useEffect } from "react";
 
 export function MarketingMotion() {
   useEffect(() => {
-    const root = document.documentElement;
     const hero = document.querySelector<HTMLElement>(".v2-hero");
     const revealItems = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
     let frame = 0;
-
-    root.classList.add("motion-ready");
 
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
+            entry.target.classList.add("reveal-ready");
+            requestAnimationFrame(() => entry.target.classList.add("is-visible"));
             observer.unobserve(entry.target);
           }
         }
@@ -27,6 +25,15 @@ export function MarketingMotion() {
       item.style.setProperty("--reveal-delay", `${Math.min(index % 4, 3) * 70}ms`);
       observer.observe(item);
     });
+
+    const heroObserver = new IntersectionObserver(([entry]) => {
+      hero?.classList.toggle("is-playing", Boolean(entry?.isIntersecting) && !document.hidden);
+    }, { threshold: 0.08 });
+    if (hero) heroObserver.observe(hero);
+
+    function syncVisibility() {
+      if (document.hidden) hero?.classList.remove("is-playing");
+    }
 
     function moveScene(event: PointerEvent) {
       if (!hero || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -41,12 +48,14 @@ export function MarketingMotion() {
     }
 
     hero?.addEventListener("pointermove", moveScene, { passive: true });
+    document.addEventListener("visibilitychange", syncVisibility);
 
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
+      heroObserver.disconnect();
       hero?.removeEventListener("pointermove", moveScene);
-      root.classList.remove("motion-ready");
+      document.removeEventListener("visibilitychange", syncVisibility);
     };
   }, []);
 

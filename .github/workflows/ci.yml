@@ -9,13 +9,60 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - run: npm install --no-audit --no-fund
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm audit --audit-level=high
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test
       - run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: quality
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run test:e2e
+        env:
+          BASELINE_URL: https://www.pagarpix.org
+      - name: Lighthouse — baseline PROD versus branch
+        shell: bash
+        run: |
+          mkdir -p lighthouse-reports
+          npm run start -- -H 127.0.0.1 > /tmp/pagarpix-next.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:3000/ >/dev/null; then break; fi
+            sleep 1
+          done
+          export CHROME_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"
+          npx lighthouse https://www.pagarpix.org --quiet --chrome-flags="--headless --no-sandbox" --only-categories=performance,accessibility,best-practices,seo --output=json --output-path=./lighthouse-reports/before-production.json
+          npx lighthouse http://127.0.0.1:3000 --quiet --chrome-flags="--headless --no-sandbox" --only-categories=performance,accessibility,best-practices,seo --output=json --output-path=./lighthouse-reports/after-local.json
+          printf '| Versão | Performance | Acessibilidade | Boas práticas | SEO |\n|---|---:|---:|---:|---:|\n' >> "$GITHUB_STEP_SUMMARY"
+          node scripts/lighthouse-summary.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-polish-audits
+          path: |
+            playwright-report
+            test-results
+            lighthouse-reports
+          retention-days: 14

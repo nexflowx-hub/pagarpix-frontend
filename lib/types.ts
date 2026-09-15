@@ -36,6 +36,7 @@ export type TreasuryOverview = {
   }>;
   financialMetrics?: "currency_scoped" | string;
   legacyCrossCurrencyTotalsDeprecated?: boolean;
+  generatedAt?: string;
 };
 
 export type FinanceOverview = {
@@ -128,10 +129,33 @@ export type Transaction = {
   amount: number;
   currency: string;
   status: string;
-  method?: string;
+  method?: string | null;
   gateway?: string;
   storeId?: string | null;
   createdAt: string;
+};
+
+export type PixCashflowPoint = {
+  date: string;
+  label: string;
+  value: number;
+  count: number;
+};
+
+export type PlatformStatus = {
+  id: "web" | "core" | "checkout" | "docs";
+  name: string;
+  status: "available" | "degraded" | "unavailable";
+  latencyMs: number | null;
+  detail: string;
+};
+
+export type PlatformStatusResponse = {
+  success: true;
+  data: {
+    checkedAt: string;
+    components: PlatformStatus[];
+  };
 };
 
 export type CoreEnvelope<T> = {
