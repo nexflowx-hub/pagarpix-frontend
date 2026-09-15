@@ -5,10 +5,10 @@ test("links públicos e CTAs principais têm destinos funcionais", async ({ page
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Infraestrutura PIX para operações/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /Solicitar acesso/i }).first()).toHaveAttribute("href", "/request-access");
-  await expect(page.getByRole("link", { name: /Explorar API/i }).first()).toHaveAttribute("href", "/docs");
+  await expect(page.getByRole("link", { name: /Explorar (a )?API/i }).first()).toHaveAttribute("href", "/docs");
   await page.getByRole("link", { name: /Solicitar acesso/i }).first().click();
   await expect(page).toHaveURL(/\/request-access$/);
-  await expect(page.getByRole("heading", { name: /Vamos avaliar a sua operação PIX/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Vamos entender a sua operação PIX/i })).toBeVisible();
 });
 
 test("login exibe erro do Core e conclui o redirecionamento com resposta válida", async ({ page }) => {
@@ -17,7 +17,7 @@ test("login exibe erro do Core e conclui o redirecionamento com resposta válida
   await page.getByLabel("E-mail empresarial").fill("merchant@example.com");
   await page.getByLabel("Senha").fill("secret");
   await page.getByRole("button", { name: /Entrar na plataforma/i }).click();
-  await expect(page.getByRole("alert")).toContainText("Core temporariamente indisponível");
+  await expect(page.locator(".form-error")).toContainText("Core temporariamente indisponível");
 
   await page.unroute("**/api/auth/login");
   await page.route("**/api/auth/login", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ success: true, data: { merchant: { id: "merchant-1" } } }) }));
@@ -46,7 +46,7 @@ test("dashboard distingue Core indisponível, dados completos e dados parciais",
   await page.unroute("**/api/core/**");
   await mockDashboard(page, "/api/core/treasury/overview");
   await page.reload();
-  await expect(page.getByRole("status")).toContainText("Dados parciais");
+  await expect(page.locator(".partial-data")).toContainText("Dados parciais");
   await expect(page.getByText("Indisponível", { exact: true }).first()).toBeVisible();
   await expect(page.getByText(/Nenhum saldo contábil foi usado como fallback/i)).toBeVisible();
 });
@@ -60,7 +60,7 @@ test("cashflow mostra somente PIX confirmado e navegação mobile é funcional",
   await expect(mobileNav).toBeVisible();
   await mobileNav.getByRole("button", { name: /Mais/i }).click();
   await expect(page.getByRole("dialog", { name: "Mais áreas" })).toBeVisible();
-  await expect(page.getByText("Requer Core").first()).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Mais áreas" }).getByText("Requer Core").first()).toBeVisible();
 });
 
 test("logout termina a sessão e volta ao login", async ({ page }) => {

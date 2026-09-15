@@ -106,7 +106,7 @@ function StoreRows({ rows, releases }: { rows: FinanceStore[]; releases: Finance
         const pendingShare = store.net > 0 ? Math.min(100, Math.max(0, Math.round((store.pending / store.net) * 100))) : 0;
         return <div className="store-table-row" key={store.storeId}>
           <span data-label="Store"><i>{initials(store.storeName)}</i><b>{store.storeName}<small>{store.storeCode}</small></b></span>
-          <span data-label="A liberar"><b>{money(store.pending)}</b><small>{store.transactions} transações</small><span className="release-meter" aria-label={`${pendingShare}% do líquido permanece pendente`}><i style={{ width: `${pendingShare}%` }} /></span></span>
+          <span data-label="A liberar"><b>{money(store.pending)}</b><small>{store.transactions} transações</small><span aria-label={`${pendingShare}% do líquido permanece pendente`} aria-valuemax={100} aria-valuemin={0} aria-valuenow={pendingShare} className="release-meter" role="progressbar"><i style={{ width: `${pendingShare}%` }} /></span></span>
           <span data-label="Disponível em">{shortDate(release?.date)}</span>
           <span data-label="Líquido acumulado"><b>{money(store.net)}</b><small>Após taxas registradas</small></span>
           <span data-label="Status"><StatusBadge tone={release?.status === "overdue" ? "warning" : store.pending > 0 ? "info" : "success"}>{releaseStatus}</StatusBadge></span>
