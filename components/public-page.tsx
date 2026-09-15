@@ -1,32 +1,33 @@
-import Link from "next/link";
-import { Brand } from "@/components/brand";
+import type { ReactNode } from "react";
+import { PublicLayout } from "@/components/public-layout";
 
 export function PublicPage({
   eyebrow,
   title,
   intro,
-  children
+  children,
+  notice
 }: {
   eyebrow: string;
   title: string;
   intro: string;
-  children: React.ReactNode;
+  children: ReactNode;
+  notice?: ReactNode;
 }) {
   return (
-    <main className="public-page">
-      <div className="public-nav">
-        <nav className="nav shell">
-          <Brand />
-          <div className="nav-links"><Link href="/#produto">Produto</Link><Link href="/pricing">Preços</Link><Link href="/docs">Docs</Link><Link href="/status">Status</Link></div>
-          <div className="nav-actions"><Link className="link-button" href="/login">Entrar</Link><Link className="button button-small" href="/login">Criar conta ↗</Link></div>
-        </nav>
-      </div>
-      <header className="public-hero shell">
-        <div className="eyebrow"><i /> {eyebrow}</div>
-        <h1>{title}</h1>
-        <p>{intro}</p>
-      </header>
-      <section className="public-content shell">{children}</section>
-    </main>
+    <PublicLayout>
+      <main className="public-page">
+        <header className="public-hero">
+          <div className="public-hero-grid" aria-hidden="true" />
+          <div className="shell public-hero-inner">
+            <div className="v2-eyebrow"><i /> {eyebrow}</div>
+            <h1>{title}</h1>
+            <p>{intro}</p>
+          </div>
+        </header>
+        {notice ? <div className="shell public-notice">{notice}</div> : null}
+        <section className="public-content shell">{children}</section>
+      </main>
+    </PublicLayout>
   );
 }
