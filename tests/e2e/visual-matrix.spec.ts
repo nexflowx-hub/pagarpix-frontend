@@ -8,9 +8,22 @@ const viewports = [
   { name: "mobile-390", width: 390, height: 844 },
 ];
 
+const baselineUrl = process.env.BASELINE_URL;
+
 for (const viewport of viewports) {
   test(`captura visual landing e dashboard em ${viewport.name}`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
+
+    if (baselineUrl) {
+      await page.goto(baselineUrl);
+      await expect(page.locator("main")).toBeVisible();
+      await page.screenshot({ path: testInfo.outputPath(`before-landing-${viewport.name}.png`), fullPage: true });
+
+      await page.goto(`${baselineUrl}/dashboard`);
+      await expect(page.locator("main")).toBeVisible();
+      await page.screenshot({ path: testInfo.outputPath(`before-dashboard-${viewport.name}.png`), fullPage: true });
+    }
+
     await page.goto("/");
     await expect(page.locator("main")).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath(`after-landing-${viewport.name}.png`), fullPage: true });

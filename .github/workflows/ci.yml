@@ -39,6 +39,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run test:e2e
+        env:
+          BASELINE_URL: https://www.pagarpix.org
       - name: Lighthouse — baseline PROD versus branch
         shell: bash
         run: |
