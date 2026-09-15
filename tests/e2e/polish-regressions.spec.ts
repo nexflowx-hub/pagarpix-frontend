@@ -35,6 +35,27 @@ for (const width of landingWidths) {
   });
 }
 
+test("hero preserva janela inicial de render antes de iniciar motion decorativo", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+
+  const hero = page.locator(".v2-hero");
+  await expect(hero).toBeVisible();
+  await expect(hero).not.toHaveClass(/is-playing/);
+  await expect(hero).toHaveClass(/is-playing/, { timeout: 1800 });
+});
+
+test("prefers-reduced-motion mantém narrativa animada pausada", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+
+  const hero = page.locator(".v2-hero");
+  await expect(hero).toBeVisible();
+  await page.waitForTimeout(1100);
+  await expect(hero).not.toHaveClass(/is-playing/);
+});
+
 test("topbar mobile mantém busca dentro do próprio campo", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await mockDashboard(page);
