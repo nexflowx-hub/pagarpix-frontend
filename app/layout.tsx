@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import "./styles/v25.css";
+import "./styles/v26.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.pagarpix.org"),
@@ -14,6 +15,10 @@ export const metadata: Metadata = {
     "API PIX, checkout, links de pagamento, webhooks, roteamento e conta empresarial BRL sobre o XPayments Core.",
   applicationName: "PagarPIX",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: "/icon.svg"
+  },
   alternates: { canonical: "/" },
   robots: { index: true, follow: true },
   openGraph: {
