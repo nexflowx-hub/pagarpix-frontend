@@ -534,8 +534,8 @@ svg { display: block; }
 @media (max-width: 980px) {
   .v2-nav-links { display: none; }
   .v2-hero { min-height: auto; padding-bottom: 120px; }
-  .v2-hero-layout { grid-template-columns: 1fr; padding-top: 80px; }
-  .v2-hero-copy { text-align: center; }
+  .v2-hero-layout { grid-template-columns: minmax(0, 1fr); padding-top: 80px; }
+  .v2-hero-copy { width: 100%; min-width: 0; text-align: center; }
   .v2-hero-copy > p { margin-inline: auto; }
   .v2-hero-actions, .v2-trust-row { justify-content: center; }
   .v2-product-scene { width: 700px; margin: -25px auto -80px; transform: scale(.8); transform-origin: center; }

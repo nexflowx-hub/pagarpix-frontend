@@ -26,6 +26,10 @@ for (const viewport of viewports) {
 
     await page.goto("/");
     await expect(page.locator("main")).toBeVisible();
+    const heroCopy = await page.locator(".v2-hero-copy").boundingBox();
+    expect(heroCopy, "o conteúdo do hero deve permanecer dentro do viewport").not.toBeNull();
+    expect(heroCopy!.x).toBeGreaterThanOrEqual(0);
+    expect(heroCopy!.x + heroCopy!.width).toBeLessThanOrEqual(viewport.width + 1);
     await page.screenshot({ path: testInfo.outputPath(`after-landing-${viewport.name}.png`), fullPage: true });
 
     await mockDashboard(page);
