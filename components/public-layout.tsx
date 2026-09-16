@@ -40,7 +40,7 @@ export function PublicFooter() {
   return (
     <footer className="v2-footer">
       <div className="shell footer-main">
-        <div><Brand /><p>Infraestrutura PIX para empresas modernas.<br />Uma experiência PagarPIX sobre o XPayments Core.</p></div>
+        <div><Brand /><p>Infraestrutura PIX para empresas modernas.<br />Uma experiência completa para operações em BRL.</p></div>
         <div><b>Produto</b><Link href="/#plataforma">Soluções</Link><Link href="/#wallet">Wallet BRL</Link><Link href="/pricing">Preços</Link></div>
         <div><b>Desenvolvedores</b><Link href="/docs">Documentação</Link><Link href="/status">Status verificável</Link><Link href="/contact">Contato</Link></div>
         <div><b>Legal</b><Link href="/legal/terms">Termos</Link><Link href="/legal/privacy">Privacidade</Link><Link href="/legal/cookies">Cookies</Link></div>
