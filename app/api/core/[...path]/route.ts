@@ -8,16 +8,28 @@ function isRecord(value: unknown): value is JsonRecord {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
+function onlyBrl(items: unknown[]) {
+  return items.filter((item) =>
+    isRecord(item) && String(item.currency ?? "").toUpperCase() === "BRL"
+  );
+}
+
 function brlScopedPayload(path: string, payload: unknown) {
   if (!isRecord(payload)) return payload;
   const data = payload.data;
 
   if ((path === "merchant/stores" || path === "wallets") && Array.isArray(data)) {
+    return { ...payload, data: onlyBrl(data) };
+  }
+
+  if (path === "merchant/profile" && isRecord(data)) {
     return {
       ...payload,
-      data: data.filter((item) =>
-        isRecord(item) && String(item.currency ?? "").toUpperCase() === "BRL"
-      )
+      data: {
+        ...data,
+        ...(Array.isArray(data.stores) ? { stores: onlyBrl(data.stores) } : {}),
+        ...(Array.isArray(data.wallets) ? { wallets: onlyBrl(data.wallets) } : {})
+      }
     };
   }
 
