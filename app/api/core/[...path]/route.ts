@@ -2,6 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { CORE_API_URL, SESSION_COOKIE, isAllowedCorePath } from "@/lib/core";
 
 type Context = { params: Promise<{ path: string[] }> };
+type JsonRecord = Record<string, unknown>;
+
+function isRecord(value: unknown): value is JsonRecord {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function brlScopedPayload(path: string, payload: unknown) {
+  if (!isRecord(payload) || !isRecord(payload.data)) return payload;
+  const data = payload.data;
+
+  if ((path === "merchant/stores" || path === "wallets") && Array.isArray(data)) {
+    return {
+      ...payload,
+      data: data.filter((item) =>
+        isRecord(item) && String(item.currency ?? "").toUpperCase() === "BRL"
+      )
+    };
+  }
+
+  return payload;
+}
 
 export async function GET(request: NextRequest, context: Context) {
   const { path: segments } = await context.params;
@@ -36,10 +57,12 @@ export async function GET(request: NextRequest, context: Context) {
     );
   }
 
-  const payload = await upstream.json().catch(() => ({
+  const rawPayload = await upstream.json().catch(() => ({
     success: false,
     error: { code: "INVALID_CORE_RESPONSE", message: "Resposta inválida do Core." }
   }));
+  const payload = upstream.ok ? brlScopedPayload(path, rawPayload) : rawPayload;
+
   return NextResponse.json(payload, {
     status: upstream.status,
     headers: { "Cache-Control": "no-store, max-age=0", "CDN-Cache-Control": "no-store" }
