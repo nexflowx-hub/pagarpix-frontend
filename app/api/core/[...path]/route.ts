@@ -9,7 +9,7 @@ function isRecord(value: unknown): value is JsonRecord {
 }
 
 function brlScopedPayload(path: string, payload: unknown) {
-  if (!isRecord(payload) || !isRecord(payload.data)) return payload;
+  if (!isRecord(payload)) return payload;
   const data = payload.data;
 
   if ((path === "merchant/stores" || path === "wallets") && Array.isArray(data)) {
