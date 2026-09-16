@@ -37,17 +37,17 @@ export default function LoginPage() {
     <main className="auth-page">
       <div className="auth-brand"><Brand /></div>
       <section className="auth-panel">
-        <div className="eyebrow"><i /> ACESSO EMPRESARIAL</div>
+        <div className="eyebrow"><i /> ACESSO PAGARPIX</div>
         <h1>Bem-vindo de volta.</h1>
-        <p>Acesse a sua conta PagarPIX conectada ao XPayments Core.</p>
+        <p>Entre na sua operação BRL. Se já utiliza XPayments, as mesmas credenciais dão acesso ao módulo PagarPIX.</p>
         <form onSubmit={submit}>
           <label>E-mail empresarial<input name="email" type="email" autoComplete="email" required placeholder="voce@empresa.com" /></label>
           <label>Senha<input name="password" type="password" autoComplete="current-password" required placeholder="••••••••" /></label>
           {error && <div className="form-error" role="alert">{error}</div>}
-          <button className="ds-button ds-button-primary auth-submit" disabled={loading}>{loading ? "Entrando…" : "Entrar na plataforma"} <span>→</span></button>
+          <button className="ds-button ds-button-primary auth-submit" disabled={loading}>{loading ? "Entrando…" : "Entrar no PagarPIX"} <span>→</span></button>
         </form>
-        <small>O token de sessão é protegido em cookie HttpOnly e nunca fica exposto ao browser.</small>
-        <p className="auth-request">Ainda não tem acesso? <Link href="/request-access">Solicite uma avaliação</Link>.</p>
+        <small>A sessão é protegida em cookie HttpOnly; credenciais e tokens não ficam expostos ao browser.</small>
+        <p className="auth-request">Ainda não tem conta? <Link href="/signup">Criar conta PagarPIX</Link>.</p>
       </section>
       <Link className="auth-back" href="/">← Voltar ao site</Link>
     </main>
