@@ -6,13 +6,16 @@ export const SESSION_COOKIE = "pagarpix_session";
 export const ALLOWED_CORE_PATHS = [
   /^wallets$/,
   /^wallets\/(movements|payouts|deposits)$/,
+  /^wallets\/operations$/,
+  /^wallets\/operations\/[0-9a-f-]{36}$/i,
   /^merchant\/(profile|stores)$/,
   /^transactions$/,
   /^transactions\/stats$/,
   /^transactions\/[0-9a-f-]{36}$/i,
   /^analytics\/overview$/,
   /^finance\/(overview|stores|releases)$/,
-  /^treasury\/overview$/
+  /^treasury\/overview$/,
+  /^routing\/(connections|policies|decisions)$/
 ];
 
 export function isAllowedCorePath(path: string) {
