@@ -15,8 +15,6 @@ export const ALLOWED_CORE_PATHS = [
   /^analytics\/overview$/,
   /^finance\/(overview|stores|releases)$/,
   /^treasury\/overview$/,
-  /^payout-requests$/,
-  /^payout-requests\/funding-options$/,
   /^payout-statements$/,
   /^routing\/(connections|policies|decisions)$/
 ];
