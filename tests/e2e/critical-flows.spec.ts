@@ -105,15 +105,21 @@ test("cashflow mostra somente PIX confirmado e navegação mobile é funcional",
   await mockDashboard(page);
   await page.goto("/dashboard/pix");
   await expect(page.getByText("BRL + succeeded + method pix")).toBeVisible();
+
+  const operationsToggle = page.locator("summary").filter({ hasText: "Operações" });
+  await expect(operationsToggle).toBeVisible();
+  await operationsToggle.click();
+  const operations = page.getByRole("navigation", { name: "Operações rápidas mobile" });
+  await expect(operations.getByRole("link", { name: "Solicitar saída" })).toBeVisible();
+  await expect(operations.getByRole("link", { name: "Smart Routing" })).toBeVisible();
+  await operationsToggle.click();
+
   const mobileNav = page.getByRole("navigation", { name: "Navegação mobile" });
   await expect(mobileNav).toBeVisible();
   await mobileNav.getByRole("button", { name: /Mais/i }).click();
   const drawer = page.getByRole("dialog", { name: "Mais áreas" });
   await expect(drawer).toBeVisible();
   await expect(drawer.getByText("Em preparação").first()).toBeVisible();
-  const operations = page.getByRole("navigation", { name: "Operações rápidas" });
-  await expect(operations.getByRole("link", { name: "Solicitar saída" })).toBeVisible();
-  await expect(operations.getByRole("link", { name: "Smart Routing" })).toBeVisible();
 });
 
 test("logout termina a sessão e volta ao login", async ({ page }) => {

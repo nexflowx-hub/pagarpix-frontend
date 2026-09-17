@@ -11,10 +11,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className={styles.shell}>
       {children}
-      <nav className={styles.nav} aria-label="Operações rápidas">
+      <nav className={styles.desktopOps} aria-label="Operações rápidas">
         <Link href="/dashboard/payouts">Solicitar saída</Link>
         <Link href="/dashboard/routing">Smart Routing</Link>
       </nav>
+      <details className={styles.mobileOps}>
+        <summary>Operações</summary>
+        <nav aria-label="Operações rápidas mobile">
+          <Link href="/dashboard/payouts">Solicitar saída</Link>
+          <Link href="/dashboard/routing">Smart Routing</Link>
+        </nav>
+      </details>
     </div>
   );
 }
