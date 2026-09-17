@@ -1,21 +1,12 @@
 import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { CORE_API_URL, SESSION_COOKIE } from "@/lib/core";
+import { hasTrustedOrigin } from "@/lib/security";
 
 type JsonRecord = Record<string, unknown>;
 
 function text(value: unknown, max: number) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
-}
-
-function sameOrigin(request: NextRequest) {
-  const origin = request.headers.get("origin");
-  if (!origin) return true;
-  try {
-    return new URL(origin).host === request.nextUrl.host;
-  } catch {
-    return false;
-  }
 }
 
 function moneyBRL(value: number) {
@@ -30,7 +21,8 @@ function ticketId() {
 async function merchantContext(token: string) {
   const response = await fetch(`${CORE_API_URL}/merchant/profile`, {
     headers: { authorization: `Bearer ${token}`, accept: "application/json" },
-    cache: "no-store"
+    cache: "no-store",
+    signal: AbortSignal.timeout(7000)
   }).catch(() => null);
   if (!response?.ok) return null;
   const payload = (await response.json().catch(() => null)) as JsonRecord | null;
@@ -38,7 +30,7 @@ async function merchantContext(token: string) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!sameOrigin(request)) {
+  if (!hasTrustedOrigin(request)) {
     return NextResponse.json({ success: false, error: { code: "INVALID_ORIGIN", message: "Origem inválida." } }, { status: 403 });
   }
 
@@ -65,9 +57,26 @@ export async function POST(request: NextRequest) {
   }
 
   const merchant = await merchantContext(token);
+  if (!merchant) {
+    return NextResponse.json({
+      success: false,
+      error: {
+        code: "MERCHANT_CONTEXT_UNAVAILABLE",
+        message: "Não foi possível validar a conta empresarial no Core. Tente novamente."
+      }
+    }, { status: 503 });
+  }
+
   const id = ticketId();
-  const merchantName = text(merchant?.name ?? merchant?.companyName, 160) || "Merchant autenticado";
-  const merchantId = text(merchant?.id, 80) || "não informado";
+  const merchantName = text(merchant.name ?? merchant.companyName, 160) || "Merchant autenticado";
+  const merchantId = text(merchant.id, 80);
+  if (!merchantId) {
+    return NextResponse.json({
+      success: false,
+      error: { code: "MERCHANT_CONTEXT_INVALID", message: "Conta empresarial sem identificação válida no Core." }
+    }, { status: 503 });
+  }
+
   const createdAt = new Date().toISOString();
   const message = [
     "💸 PagarPIX — Solicitação manual de saída",
@@ -95,7 +104,8 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ content: message.slice(0, 1900), allowed_mentions: { parse: [] } }),
-      cache: "no-store"
+      cache: "no-store",
+      signal: AbortSignal.timeout(7000)
     }).catch(() => null);
     if (response?.ok) deliveries.push("discord"); else errors.push("discord");
   }
@@ -104,8 +114,9 @@ export async function POST(request: NextRequest) {
     const response = await fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ chat_id: telegramChatId, text: message, disable_web_page_preview: true }),
-      cache: "no-store"
+      body: JSON.stringify({ chat_id: telegramChatId, text: message.slice(0, 4000), disable_web_page_preview: true }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(7000)
     }).catch(() => null);
     if (response?.ok) deliveries.push("telegram"); else errors.push("telegram");
   }
