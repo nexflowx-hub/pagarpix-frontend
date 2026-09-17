@@ -4,11 +4,60 @@ import { mockCoreUnavailable, mockDashboard } from "./fixtures";
 test("links públicos e CTAs principais têm destinos funcionais", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Infraestrutura PIX para operações/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Criar conta/i }).first()).toHaveAttribute("href", "/signup");
   await expect(page.getByRole("link", { name: /Solicitar acesso/i }).first()).toHaveAttribute("href", "/request-access");
   await expect(page.getByRole("link", { name: /Explorar (a )?API/i }).first()).toHaveAttribute("href", "/docs");
-  await page.getByRole("link", { name: /Solicitar acesso/i }).first().click();
-  await expect(page).toHaveURL(/\/request-access$/);
-  await expect(page.getByRole("heading", { name: /Vamos entender a sua operação PIX/i })).toBeVisible();
+  await page.getByRole("link", { name: /Criar conta/i }).first().click();
+  await expect(page).toHaveURL(/\/signup$/);
+  await expect(page.getByRole("heading", { name: /Comece a operar em BRL/i })).toBeVisible();
+});
+
+test("signup PagarPIX cria sessão e entra no dashboard", async ({ page }) => {
+  await page.route("**/api/auth/register", (route) => route.fulfill({
+    status: 201,
+    contentType: "application/json",
+    body: JSON.stringify({
+      success: true,
+      data: {
+        account: { product: "pagarpix", activation: "awaiting_activation" },
+        merchant: { id: "merchant-1", name: "Empresa Piloto", email: "pilot@example.com" },
+        wallet: { id: "wallet-1", currency: "BRL" },
+        store: { id: "store-1", name: "Loja Brasil", currency: "BRL", status: "draft" }
+      }
+    })
+  }));
+
+  await page.goto("/signup");
+  await page.getByLabel("Nome do responsável").fill("Responsável Piloto");
+  await page.getByLabel("Empresa / projeto").fill("Empresa Piloto");
+  await page.getByLabel("Nome da primeira Store").fill("Loja Brasil");
+  await page.getByLabel("E-mail empresarial").fill("pilot@example.com");
+  await page.getByLabel("Senha", { exact: true }).fill("senha-forte-123");
+  await page.getByLabel("Confirmar senha").fill("senha-forte-123");
+  await page.getByRole("button", { name: /Criar conta PagarPIX/i }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+});
+
+test("signup PagarPIX orienta conta existente para o login", async ({ page }) => {
+  await page.route("**/api/auth/register", (route) => route.fulfill({
+    status: 409,
+    contentType: "application/json",
+    body: JSON.stringify({
+      success: false,
+      error: {
+        code: "ACCOUNT_EXISTS",
+        message: "Já existe uma conta com este e-mail. Entre no PagarPIX com as credenciais existentes."
+      }
+    })
+  }));
+
+  await page.goto("/signup");
+  await page.getByLabel("Nome do responsável").fill("Cliente Existente");
+  await page.getByLabel("E-mail empresarial").fill("existing@example.com");
+  await page.getByLabel("Senha", { exact: true }).fill("senha-forte-123");
+  await page.getByLabel("Confirmar senha").fill("senha-forte-123");
+  await page.getByRole("button", { name: /Criar conta PagarPIX/i }).click();
+  await expect(page.locator(".form-error")).toContainText("Entre no PagarPIX com as credenciais existentes");
 });
 
 test("login exibe erro do Core e conclui o redirecionamento com resposta válida", async ({ page }) => {
@@ -16,12 +65,12 @@ test("login exibe erro do Core e conclui o redirecionamento com resposta válida
   await page.goto("/login");
   await page.getByLabel("E-mail empresarial").fill("merchant@example.com");
   await page.getByLabel("Senha").fill("secret");
-  await page.getByRole("button", { name: /Entrar na plataforma/i }).click();
+  await page.getByRole("button", { name: /Entrar no PagarPIX/i }).click();
   await expect(page.locator(".form-error")).toContainText("Core temporariamente indisponível");
 
   await page.unroute("**/api/auth/login");
   await page.route("**/api/auth/login", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ success: true, data: { merchant: { id: "merchant-1" } } }) }));
-  await page.getByRole("button", { name: /Entrar na plataforma/i }).click();
+  await page.getByRole("button", { name: /Entrar no PagarPIX/i }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
 });
 

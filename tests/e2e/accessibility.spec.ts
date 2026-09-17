@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { mockDashboard } from "./fixtures";
 
-for (const path of ["/", "/pricing", "/docs", "/contact", "/request-access", "/login"]) {
+for (const path of ["/", "/pricing", "/docs", "/contact", "/request-access", "/login", "/signup"]) {
   test(`${path} sem violações críticas ou sérias de acessibilidade`, async ({ page }) => {
     await page.goto(path);
     const results = await new AxeBuilder({ page }).analyze();
